@@ -21,6 +21,13 @@ db.init_app(app)
 
 api = Api(app)
 
+@app.before_request
+def check_if_logged_in():
+    if not session["owner_id"]\
+        and request.endpoint != 'login':
+        return {"error": "unauthorized"}, 401
+
+
 
 class CheckSession(Resource):
     def get(self):
@@ -78,6 +85,7 @@ class Logout(Resource):
 
 class Owners(Resource):
     def get(self):
+        
         owners = [owner.to_dict() for owner in Owner.query.all()]
 
         response = make_response(
